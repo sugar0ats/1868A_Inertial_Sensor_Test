@@ -49,25 +49,26 @@ void pre_auton(void) {
 /*                                                                           */
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
-
-
+// ALL VARIABLES FOR PID DEFINED HERE //
+double ratio = 0.1;
+double destination = 90;
+double error = destination - inertialSensor.rotation(degrees);
 void autonomous(void) {
   // ..........................................................................
   // Insert autonomous user code here.
   // Turns robot right 45 degrees
-  
-  LeftMotor.spin(forward);
-  RightMotor.spin(reverse);
+  LeftMotor.spin(forward,error * ratio, voltageUnits::volt);
+  RightMotor.spin(reverse,error*ratio,voltageUnits::volt);
   printf("error is %f\n", inertialSensor.rotation(degrees));
-  waitUntil((inertialSensor.rotation(degrees)) >= 135);
+  waitUntil((inertialSensor.rotation(degrees)) >= 90);
   LeftMotor.stop();
   RightMotor.stop();
   wait(400, msec);
   // Move 14 inches
   // driveDistanceInches(14);
   // Turn left 45 degrees
-  LeftMotor.spin(reverse);
-  RightMotor.spin(forward);
+  LeftMotor.spin(reverse,error*ratio,voltageUnits::volt);
+  RightMotor.spin(forward,error*ratio,voltageUnits::volt);
   waitUntil((inertialSensor.rotation(degrees)) <= 90);
   LeftMotor.stop();
   RightMotor.stop();
@@ -76,7 +77,6 @@ void autonomous(void) {
   // DriveDistanceInches(17);
   // ..........................................................................
 }
-
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              User Control Task                            */
@@ -97,12 +97,10 @@ void usercontrol(void) {
     // Insert user code here. This is where you use the joystick values to
     // update your motors, etc.
     // ........................................................................
-
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
   }
 }
-
 //
 // Main will set up the competition functions and callbacks.
 //
@@ -110,10 +108,8 @@ int main() {
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);
   Competition.drivercontrol(usercontrol);
-
   // Run the pre-autonomous function.
   pre_auton();
-
   // Prevent main from exiting with an infinite loop.
   while (true) {
     wait(100, msec);
